@@ -1,6 +1,5 @@
 from django.db.models import Count, F
 from rest_framework import viewsets
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from cinema.models import (
@@ -143,25 +142,15 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
         return MovieSessionSerializer
 
 
-class OrderPagination(PageNumberPagination):
-    page_size = 100
-    page_size_query_param = "page_size"
-    max_page_size = 100
-
-
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    pagination_class = OrderPagination
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return (
-            self.queryset.filter(user=self.request.user)
-            .prefetch_related(
-                "tickets__movie_session__movie",
-                "tickets__movie_session__cinema_hall",
-            )
+        return self.queryset.filter(user=self.request.user).prefetch_related(
+            "tickets__movie_session__movie",
+            "tickets__movie_session__cinema_hall",
         )
 
     def perform_create(self, serializer):
