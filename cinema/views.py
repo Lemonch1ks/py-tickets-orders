@@ -1,4 +1,4 @@
-from datetime import datetime
+
 
 from django.db.models import F, Count
 from rest_framework import viewsets
@@ -96,7 +96,6 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
         if movie:
             queryset = queryset.filter(movie_id=movie)
         if date:
-            date = datetime.strptime(date, "%Y-%m-%d").date()
             queryset = queryset.filter(show_time__date=date)
 
         return queryset.distinct()
@@ -111,16 +110,9 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
         return MovieSessionSerializer
 
 
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 3
-    page_size_query_param = "page_size"
-    max_page_size = 10
-
-
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
