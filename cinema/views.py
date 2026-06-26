@@ -69,6 +69,18 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
     queryset = MovieSession.objects.all()
     serializer_class = MovieSessionSerializer
 
+    def get_queryset(self):
+        queryset = MovieSession.objects.all()
+        params = self.request.query_params
+        movie = params.get("movie")
+        date = params.get("date")
+
+        if movie:
+            queryset = queryset.filter(movie_id=movie)
+        elif date:
+            queryset = queryset.filter(show_time__date=date)
+        return queryset.distinct()
+
     def get_serializer_class(self):
         if self.action == "list":
             return MovieSessionListSerializer
